@@ -3,6 +3,7 @@ use meme_generator_utils::builder::MemeOptions;
 #[derive(MemeOptions)]
 pub(crate) struct NoOptions {}
 
+#[allow(unused_macros)]
 macro_rules! number_option {
     ($name:ident, $min:tt, $max:tt) => {
         #[derive(MemeOptions)]
@@ -14,4 +15,5 @@ macro_rules! number_option {
     };
 }
 
+#[allow(unused_imports)]
 pub(crate) use number_option;

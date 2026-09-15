@@ -5,7 +5,6 @@ use meme_generator_utils::{
     builder::InputImage,
     canvas::CanvasExt,
     encoder::make_png_or_gif,
-    image::ImageExt,
     text_params,
     tools::{load_image, local_date, new_paint, new_surface},
 };

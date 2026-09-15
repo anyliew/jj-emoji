@@ -1,4 +1,4 @@
-use skia_safe::{Color, Image, textlayout::TextAlign};
+use skia_safe::Color;
 
 use meme_generator_core::error::Error;
 use meme_generator_utils::{
@@ -15,7 +15,6 @@ use crate::{options::NoOptions, register_meme};
 fn xiatou(images: Vec<InputImage>, texts: Vec<String>, _: NoOptions) -> Result<Vec<u8>, Error> {
     let text = texts.first().map(|s| s.as_str()).unwrap_or("这个群友，蒸丅亠！");
     let img = images[0].image.clone().resize_exact((30, 30));
-    let frame = load_image("xiatou/0.png")?;
     let mut text2image = Text2Image::from_text(
         text,
         24.0,

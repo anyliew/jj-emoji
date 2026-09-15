@@ -2,7 +2,7 @@ use skia_safe::{Color, IRect, textlayout::TextAlign};
 
 use meme_generator_core::error::Error;
 use meme_generator_utils::{
-    builder::InputImage,
+    builder::{InputImage, MemeOptions},
     canvas::CanvasExt,
     encoder::encode_png,
     image::ImageExt,
@@ -12,10 +12,25 @@ use meme_generator_utils::{
 };
 
 use crate::tags::MemeTags;
-use crate::{options::NoOptions, register_meme};
+use crate::register_meme;
 
-fn qunyoujupai(images: Vec<InputImage>, texts: Vec<String>, _: NoOptions) -> Result<Vec<u8>, Error> {
-    let name = "晓楠嬢";
+#[derive(MemeOptions)]
+pub(crate) struct QunyoujupaiOptions {
+    #[option(short, long, description = "指定名字")]
+    name: Option<String>,
+}
+
+fn qunyoujupai(
+    images: Vec<InputImage>,
+    texts: Vec<String>,
+    options: QunyoujupaiOptions,
+) -> Result<Vec<u8>, Error> {
+    let name = options
+        .name
+        .clone()
+        .map(|n| n.chars().take(8).collect::<String>())
+        .filter(|n| !n.is_empty())
+        .unwrap_or_else(|| "晓楠嬢".to_string());
     let text = if texts.is_empty() { "我是晓楠嬢" } else { &texts[0] };
     let img = images[0].image.resize_exact((425, 425));
     let frame = load_image("qunyoujupai/0.png")?;
@@ -35,7 +50,7 @@ fn qunyoujupai(images: Vec<InputImage>, texts: Vec<String>, _: NoOptions) -> Res
         ),
     )?;
     let mut t2i = Text2Image::from_text(
-        name,
+        &name,
         72.0,
         text_params!(paint = new_paint(Color::from_rgb(27, 27, 27))),
     );

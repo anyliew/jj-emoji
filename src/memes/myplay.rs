@@ -1,19 +1,40 @@
-use skia_safe::{Color, IRect, Image, textlayout::TextAlign};
+use skia_safe::{Color, ISize, IRect, Image, textlayout::TextAlign};
 
 use meme_generator_core::error::Error;
 use meme_generator_utils::{
-    builder::InputImage,
+    builder::{InputImage, MemeOptions},
     canvas::CanvasExt,
     encoder::{FrameAlign, GifInfo, make_gif_or_combined_gif},
     image::ImageExt,
+    text::Text2Image,
     text_params,
     tools::{load_image, local_date, new_paint, new_stroke_paint, new_surface},
 };
 
-use crate::{options::NoOptions, register_meme};
+use crate::register_meme;
 
-fn myplay(images: Vec<InputImage>, texts: Vec<String>, _: NoOptions) -> Result<Vec<u8>, Error> {
-    let name = "智商-1";
+#[derive(MemeOptions)]
+pub(crate) struct MyplayOptions {
+    #[option(short, long, description = "指定名字")]
+    name: Option<String>,
+}
+
+fn myplay(images: Vec<InputImage>, texts: Vec<String>, options: MyplayOptions) -> Result<Vec<u8>, Error> {
+    let name = options
+        .name
+        .clone()
+        .unwrap_or_else(|| "智商-1".to_string());
+    let mut name_t2i = Text2Image::from_text(
+        &name,
+        18.0,
+        text_params!(paint = new_paint(Color::from_rgb(27, 27, 27))),
+    );
+    name_t2i.layout(10000.0);
+    let name_w = name_t2i.longest_line().ceil() as i32;
+    let name_h = name_t2i.height().ceil() as i32;
+    let mut name_surface = new_surface(ISize::new(name_w.max(1), name_h.max(1)));
+    name_t2i.draw_on_canvas(name_surface.canvas(), (0, 0));
+    let name_img = name_surface.image_snapshot();
     let text = if texts.is_empty() { "笨死了" } else { &texts[0] };
     let head_locs = [
         (48, 208), (48, 211), (48, 274), (48, 264), (48, 242), (48, 232),
@@ -43,16 +64,7 @@ fn myplay(images: Vec<InputImage>, texts: Vec<String>, _: NoOptions) -> Result<V
         )?;
         if i < 4 {
             let ny = 172 - i as i32 * 40;
-            canvas.draw_text_area_auto_font_size(
-                IRect::from_ltrb(0, ny - 30, 180, ny + 30),
-                name,
-                18.0,
-                18.0,
-                text_params!(
-                    text_align = TextAlign::Center,
-                    paint = new_paint(Color::from_rgb(27, 27, 27)),
-                ),
-            )?;
+            canvas.draw_image(&name_img, (90 - name_w / 2, ny - name_h / 2), None);
         }
         Ok(surface.image_snapshot())
     };
