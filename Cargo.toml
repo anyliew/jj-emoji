@@ -1,0 +1,28 @@
+[package]
+name = "jj-emoji"
+description = "jj-emoji"
+version = "0.0.6"
+authors = ["Anyliew <anyliew@outlook.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/anyliew/jj-emoji"
+repository = "https://github.com/anyliew/jj-emoji"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+inventory = "0.3"
+serde = "1.0"
+skia-safe = { version = "0.93", features = ["textlayout"] }
+rand = "0.10.2"
+
+meme_generator_core = "0.0.5"
+meme_generator_utils = "0.0.9"
+
+[profile.release]
+strip = true
+opt-level = "z"
+lto = true
+codegen-units = 1
